@@ -1,3 +1,5 @@
+# docker-compose.yml file for local development
+
 version: '3.8'
 services:
   api:
