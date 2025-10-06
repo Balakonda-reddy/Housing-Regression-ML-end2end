@@ -1,0 +1,25 @@
+# Use slim Python base image
+FROM --platform=$BUILDPLATFORM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+WORKDIR /app
+
+# Install Streamlit and dependencies directly with pip (most reliable)
+RUN pip install --no-cache-dir streamlit pandas numpy requests plotly boto3
+
+# Copy ONLY Streamlit-related files
+COPY app.py ./
+
+# Streamlit config
+ENV STREAMLIT_SERVER_PORT=8501 \
+    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+    STREAMLIT_SERVER_BASEURLPATH=/dashboard \
+    STREAMLIT_BROWSER_GATHERUSAGESTATS=false
+
+# Default API_URL (override in docker run / ECS)
+ENV API_URL=http://localhost:8000/predict
+
+EXPOSE 8501
+
+ENTRYPOINT ["streamlit", "run", "app.py"]
+CMD ["--server.port=8501", "--server.address=0.0.0.0", "--server.baseUrlPath=/dashboard"]
